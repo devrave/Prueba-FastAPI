@@ -1,5 +1,42 @@
 # 📋 Gestor de Tareas - API REST con FastAPI
 
+---
+
+## ⚡ Quick Start (5 minutos)
+
+Si solo quieres ver el proyecto funcionando, ejecuta estos comandos en orden:
+
+```bash
+# 1. Clonar repo
+git clone <URL> && cd Prueba_FastApi
+
+# 2. Crear entorno virtual
+python -m venv venv && venv\Scripts\activate
+
+# 3. Instalar dependencias
+pip install -r requirements.txt
+
+# 4. Configurar variables de entorno
+copy .env.example .env
+
+# 5. Levantar PostgreSQL
+docker-compose up -d
+
+# 6. Aplicar migraciones
+alembic upgrade head
+
+# 7. Iniciar servidor
+uvicorn app.main:app --reload
+
+# 8. Probar en: http://localhost:8000/docs
+```
+
+**Credenciales para probar:**
+- Email: `admin@example.com`
+- Contraseña: `admin123`
+
+---
+
 ## 📌 Descripción del Proyecto
 
 Este es un **Gestor de Tareas (Task Manager) API** desarrollado con **FastAPI** y **PostgreSQL**. Es una aplicación backend REST que permite a los usuarios autenticados crear, leer, actualizar y eliminar tareas con paginación.
