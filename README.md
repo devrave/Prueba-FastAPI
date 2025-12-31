@@ -2,53 +2,6 @@
 
 ---
 
-## ⚡ Quick Start (5 minutos)
-
-Si solo quieres ver el proyecto funcionando, ejecuta estos comandos en orden:
-
-```bash
-# 1. Clonar repo
-git clone <URL> && cd Prueba_FastApi
-
-# 2. Crear entorno virtual 
-python -m venv venv 
-# Activar (Windows - PowerShell):
-venv\Scripts\activate 
-# Activar (Mac/Linux):
-source venv/bin/activate
-
-# 3. Instalar dependencias
-pip install -r requirements.txt
-
-# 4. ⚠️ IMPORTANTE: Configurar variables de entorno
-# En Windows (PowerShell):
-copy .env.example .env
-# En Mac/Linux:
-cp .env.example .env
-# VERIFICA que .env se creó correctamente en el directorio raíz
-
-# 5. Levantar PostgreSQL en Docker
-docker-compose up -d
-
-# 6. Aplicar migraciones a la BD
-alembic upgrade head
-
-# 7. Iniciar servidor
-uvicorn app.main:app --reload
-
-# 8. Probar en: http://localhost:8000/docs
-```
-
-**⚠️ Si te sale error "No 'script_location' key found":**
-- Verifica que `.env` existe en el directorio raíz (no solo `.env.example`)
-- Verifica que tienes la carpeta `alembic/` en el directorio raíz
-
-**Credenciales para probar:**
-- Email: `admin@example.com`
-- Contraseña: `admin123`
-
----
-
 ## 📌 Descripción del Proyecto
 
 Este es un **Gestor de Tareas (Task Manager) API** desarrollado con **FastAPI** y **PostgreSQL**. Es una aplicación backend REST que permite a los usuarios autenticados crear, leer, actualizar y eliminar tareas con paginación.
@@ -212,6 +165,83 @@ En Swagger UI puedes probar todos los endpoints directamente.
 
 ---
 
+## 🚀 Usar Postman para Pruebas (Recomendado)
+
+Se incluye una **Colección de Postman** lista para usar con todos los endpoints configurados, incluyendo autenticación automática y ejemplos de paginación.
+
+### Paso 1: Descargar Postman
+
+Si no lo tienes instalado, descárgalo desde [postman.com](https://www.postman.com/downloads/)
+
+### Paso 2: Importar la Colección
+
+1. Abre Postman
+2. Click en **File** → **Import** (o botón Import arriba a la izquierda)
+3. Selecciona el archivo `Postman_Collection.json` del proyecto
+4. Click en **Import**
+
+Verás 3 carpetas:
+- **Autenticación** - Login
+- **Tareas** - CRUD completo (Crear, Listar, Obtener, Actualizar, Eliminar)
+
+### Paso 3: Ejecutar el Flujo Completo
+
+**1. Login (PRIMERO)**
+- Haz click en: **Autenticación** → **Login - Obtener Token**
+- Click en **Send**
+- El token se guarda **automáticamente** en la variable `{{access_token}}`
+
+**2. Crear Tareas**
+- Ve a: **Tareas** → **Crear Tarea**
+- Modifica el JSON en la pestaña **Body** si lo deseas
+- Click en **Send** (201 Created)
+
+**3. Ver Paginación (★ Mejor forma de verla)**
+- Ve a: **Tareas** → **Listar Tareas (Paginado)**
+- **Cambia los parámetros en la URL directamente:**
+  - `page=1&page_size=10` (10 tareas por página)
+  - `page=1&page_size=5` (5 tareas por página)
+  - `page=2&page_size=5` (página 2)
+- Click en **Send**
+- **Verás la respuesta JSON completa con:**
+  ```json
+  {
+    "items": [...],
+    "total": 25,
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 3
+  }
+  ```
+
+**4. Obtener Una Tarea**
+- Ve a: **Tareas** → **Obtener Tarea por ID**
+- Cambia el ID en la URL si es necesario
+- Click en **Send**
+
+**5. Actualizar Tarea**
+- Ve a: **Tareas** → **Actualizar Tarea**
+- Modifica el JSON en el Body (ej: cambiar status a "done")
+- Click en **Send**
+
+**6. Eliminar Tarea**
+- Ve a: **Tareas** → **Eliminar Tarea**
+- Cambia el ID en la URL si es necesario
+- Click en **Send** (204 No Content = éxito)
+
+### ✅ Ventajas de usar Postman
+
+| Característica | Descripción |
+|---|---|
+| **Token automático** | Se guarda automáticamente después de login |
+| **Interfaz gráfica** | Fácil cambiar parámetros y ver respuestas |
+| **Paginación clara** | Cambiar `page` y `page_size` visualmente |
+| **Historial** | Guarda todas tus solicitudes |
+| **Colecciones** | Todo el CRUD en un mismo lugar |
+| **Variables de entorno** | Token se guarda automáticamente |
+
+---
+
 ## 🔑 Autenticación
 
 ### Usuario Inicial
@@ -231,6 +261,14 @@ Contraseña: admin123
 2. **Recibe JWT Token** → Válido por 60 minutos
 3. **Usa el Token** → En header `Authorization: Bearer <token>` para acceder a endpoints protegidos
 
+### ¿Dónde poner el JSON en las solicitudes?
+
+Todos los endpoints que envían datos (Login, Crear Tarea, Actualizar Tarea) requieren un JSON en el **BODY (cuerpo)** de la solicitud:
+
+- **Con Swagger UI:** En el campo de texto que aparece cuando haces clic en "Try it out"
+- **Con cURL:** Después del parámetro `-d` o `--data`
+- **Con Postman/Insomnia:** En la pestaña "Body" → selecciona "raw" → "JSON"
+
 ---
 
 ## 📡 Endpoints de la API
@@ -242,6 +280,7 @@ Contraseña: admin123
 POST /auth/login
 Content-Type: application/json
 
+# Este JSON va en el BODY (cuerpo) de la solicitud:
 {
   "email": "admin@example.com",
   "password": "admin123"
@@ -271,6 +310,7 @@ POST /tasks
 Content-Type: application/json
 Authorization: Bearer <token>
 
+# Este JSON va en el BODY (cuerpo) de la solicitud:
 {
   "title": "Comprar leche",
   "description": "Ir al supermercado a comprar leche",
@@ -341,6 +381,7 @@ PUT /tasks/1
 Content-Type: application/json
 Authorization: Bearer <token>
 
+# Este JSON va en el BODY (cuerpo) de la solicitud:
 {
   "status": "done"
 }
@@ -579,37 +620,6 @@ alembic upgrade head
 
 ---
 
-## 🧪 Testing Manual
-
-### Test 1: Health Check (Sin autenticación)
-```bash
-curl http://localhost:8000/health
-# Respuesta esperada: {"status":"ok"}
-```
-
-### Test 2: Login con credenciales incorrectas
-```bash
-curl -X POST http://localhost:8000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"wrong@example.com","password":"wrong"}'
-# Respuesta esperada: 401 - "Email o contraseña incorrectos"
-```
-
-### Test 3: Acceder a tareas sin token
-```bash
-curl http://localhost:8000/tasks
-# Respuesta esperada: 401 - "Not authenticated"
-```
-
-### Test 4: Tarea inexistente
-```bash
-curl -X GET http://localhost:8000/tasks/99999 \
-  -H "Authorization: Bearer YOUR_TOKEN"
-# Respuesta esperada: 404 - "Tarea no encontrada"
-```
-
----
-
 ## 📚 Recursos de Aprendizaje
 
 - **FastAPI Documentation:** https://fastapi.tiangolo.com/
@@ -620,7 +630,6 @@ curl -X GET http://localhost:8000/tasks/99999 \
 
 ---
 
-## 👨‍💻 Notas para Evaluadores
 
 ### ✅ Qué está implementado
 
@@ -654,3 +663,5 @@ curl -X GET http://localhost:8000/tasks/99999 \
 ---
 
 **¡Gracias por revisar este proyecto!** 🚀
+
+
