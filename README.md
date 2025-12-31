@@ -651,17 +651,9 @@ alembic upgrade head
 3. **Reproducibilidad:** Todo automatizado con Docker y migraciones
 4. **Escalabilidad:** Arquitectura lista para agregar más entidades y endpoints
 
-### ⏱️ Estimación de Tiempo
+### Autor
+Andrés Cano Rave
 
-- Configuración inicial: ~30 min
-- Autenticación (JWT + bcrypt): ~45 min
-- CRUD de tareas: ~60 min
-- Migraciones y base de datos: ~45 min
-- Documentación: ~30 min
-- **Total: ~3 horas 30 minutos**
-
----
-
-**¡Gracias por revisar este proyecto!** 🚀
+**¡Gracias ** 
 
 
