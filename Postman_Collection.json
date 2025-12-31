@@ -1,0 +1,385 @@
+{
+  "info": {
+    "_postman_id": "gestor-tareas-api",
+    "name": "Gestor de Tareas - API REST",
+    "description": "Colección Postman para probar la API del Gestor de Tareas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Login - Obtener Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Guardar el token para usarlo en otros requests",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"access_token\", jsonData.access_token);",
+                  "    console.log(\"Token guardado: \" + jsonData.access_token.substring(0, 20) + \"...\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login con credenciales admin\n\nRespuesta esperada: 200 OK con access_token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tareas - CRUD",
+      "item": [
+        {
+          "name": "Crear Tarea",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Guardar el ID de la tarea creada",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"task_id\", jsonData.id);",
+                  "    console.log(\"Tarea creada con ID: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Aprender FastAPI\",\n  \"description\": \"Completar el proyecto de prueba técnica\",\n  \"status\": \"pending\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Crear una nueva tarea\n\nRespuesta esperada: 201 Created"
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Tareas (Paginado)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/tasks?page=1&page_size=10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Listar todas las tareas con paginación\n\nParámetros:\n- page: número de página (default: 1)\n- page_size: tareas por página (default: 10, max: 100)\n\nRespuesta esperada: 200 OK"
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Tarea por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/tasks/{{task_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "description": "Obtener una tarea específica por su ID\n\nRespuesta esperada: 200 OK o 404 si no existe"
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Tarea",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/tasks/{{task_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "description": "Actualizar una tarea\n\nCampos que se pueden actualizar:\n- title: string\n- description: string\n- status: string (pending, in_progress, done)\n\nRespuesta esperada: 200 OK"
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Tarea",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/tasks/{{task_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "description": "Eliminar una tarea\n\nRespuesta esperada: 204 No Content"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Verificar Estado de la API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Verificar que la API esté corriendo\n\nRespuesta esperada: 200 OK con {\"status\":\"ok\"}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pruebas de Error",
+      "item": [
+        {
+          "name": "Acceder sin Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Intentar acceder a endpoint protegido sin token\n\nRespuesta esperada: 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Tarea Inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/tasks/99999",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks",
+                "99999"
+              ]
+            },
+            "description": "Intentar obtener una tarea que no existe\n\nRespuesta esperada: 404 Not Found"
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Tarea sin Título (Validación)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Sin título\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Intentar crear tarea sin título (campo requerido)\n\nRespuesta esperada: 422 Unprocessable Entity"
+          },
+          "response": []
+        },
+        {
+          "name": "Login con Credenciales Incorrectas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Intentar login con credenciales incorrectas\n\nRespuesta esperada: 401 Unauthorized"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "task_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
