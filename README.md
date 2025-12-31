@@ -10,19 +10,27 @@ Si solo quieres ver el proyecto funcionando, ejecuta estos comandos en orden:
 # 1. Clonar repo
 git clone <URL> && cd Prueba_FastApi
 
-# 2. Crear entorno virtual
-python -m venv venv && venv\Scripts\activate
+# 2. Crear entorno virtual 
+python -m venv venv 
+# Activar (Windows - PowerShell):
+venv\Scripts\activate 
+# Activar (Mac/Linux):
+source venv/bin/activate
 
 # 3. Instalar dependencias
 pip install -r requirements.txt
 
-# 4. Configurar variables de entorno
+# 4. ⚠️ IMPORTANTE: Configurar variables de entorno
+# En Windows (PowerShell):
 copy .env.example .env
+# En Mac/Linux:
+cp .env.example .env
+# VERIFICA que .env se creó correctamente en el directorio raíz
 
-# 5. Levantar PostgreSQL
+# 5. Levantar PostgreSQL en Docker
 docker-compose up -d
 
-# 6. Aplicar migraciones
+# 6. Aplicar migraciones a la BD
 alembic upgrade head
 
 # 7. Iniciar servidor
@@ -30,6 +38,10 @@ uvicorn app.main:app --reload
 
 # 8. Probar en: http://localhost:8000/docs
 ```
+
+**⚠️ Si te sale error "No 'script_location' key found":**
+- Verifica que `.env` existe en el directorio raíz (no solo `.env.example`)
+- Verifica que tienes la carpeta `alembic/` en el directorio raíz
 
 **Credenciales para probar:**
 - Email: `admin@example.com`
@@ -510,6 +522,25 @@ Prueba_FastApi/
 ---
 
 ## 🐛 Solución de Problemas
+
+### Error: "No 'script_location' key found in configuration" (Alembic)
+**Causa:** El archivo `.env` no existe o no fue copiado desde `.env.example`
+
+**Solución:**
+```bash
+# Verifica que estés en el directorio raíz del proyecto
+ls .env  # Debe existir
+
+# Si no existe, cópialo:
+# Windows (PowerShell):
+copy .env.example .env
+
+# Mac/Linux:
+cp .env.example .env
+
+# Luego intenta de nuevo:
+alembic upgrade head
+```
 
 ### Error: "connection to server at localhost failed"
 **Solución:**
